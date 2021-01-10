@@ -1,0 +1,15 @@
+{
+  "serviceAccount": {
+    "type": "service_account",
+    "project_id": "medical-cooler-box",
+    "private_key_id": "19708ea55054ec9fd9719b26e1463773d06f2e42",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCtmqTgaK9qNUYE\nRY6L+2NDYLlNixMTkpzxquH3ueAxPG9R5VTgNlTAdWrggVMi1CcXm3DtoxpAMe/3\n0s20volQxe+kpOzpx0nPMWTa/2UlHqBqyJFYoPyMMkcDkMaN/dBJgCqHrYImZBAs\ntgQV2UfLsRMKDGlTEcAkC52bsXpg1514a24zFS8Ptn/PBHF0LSgeSLWvFBJTdSBz\n+C4/244PeVzMMrSzI/AACbgHpdJ7vwudRYVZqTLYuqenhOrje83pXe6tXprWqkO9\nYSd1EY03pJesbtEa//we4ovhakyNuuCjghON0aY/X2E9VYEwsAdWkAufSeDedLdc\nuTI6uKtFAgMBAAECggEAH1Cwspk3oTcsYttgMACAApipPGNcpNBy1oYOXlcNaZw+\n8V0mnw414gScK5SweC0gQxojN/6OnutTH9dLC3I+R095H7AvWyk7d3AvwvBEYLqC\nUdjNnRjnDWwJUsuUAWt6HbQMl+5UtpOgtkv79yv7TzMpHcwo2JbwW6ArxTixvFOE\ncZ8TvUkTyLLSe+g8WPtiz5QU1jwgruaFb3fwPtucDkQEoWd4fjGIjOIarMdwsd6W\nuoNFKcmuY6I2yXNO7uc1g+fYlokWDv5eubDDY4sJKh5seUUBDwp1xoW6xyXpvxM+\n1szIRQCIWjUYZPW4ZldVWkJz4wdYDLWgFGgKrufugQKBgQDUhLfPWNaYgkcc7c2y\nX8Wl/5swEmwTxnHOOnmAcfzhmdJU2n4kTBnql4dUpIumcREP9A4YBSmbbqsUYRT6\ngV49jOj7PZPGXLm0oi8BAkc61N1KKgVzA31kST1ND9kXmbPT1vkAfzeOJcFPTOuM\nkdHwRN5w/aApPM1Ko0zbrkfdgQKBgQDRH6vyY8CWQ9aZ0aUCFh2M1DmPrLbUbQNm\niYYMPZoYGpdydLoKI1AEAKHiWPW0oRxbQTqurZ4VUgsP27P/bcz6AgzbAGfyIC5m\npH6H9EiPgPVRUQcgwMlvnb41BFgT7Jg6GwxmUdx5rBv4VLTfwpO2OddH0rvNjlV9\n/lUKcBS3xQKBgQCepnmGDD8f2Vn3SbwepoqpstkKmSYf2SyKlXKxJedwD+JKQFad\nCEbsr7RyxugOGChxrXN8ERaPl52V+CeuHzfYYUJolP6lvgFQzSaj7Sx5ygFtZVNu\nGjPY0yg1SFh72t25jqmS6mXx81ONvNG3vgBpCzC4T07qmh5z0tcExOWXgQKBgQCX\n5p2Lb5HQlG4pRPLK1S2Zwf4dsqMLIjQ6IuLPuV9Y6tffN5J7ErNodN0iAORY1D44\nuuTZRRty+Sk316qjeypM33hfC6h1Y5LQ0+Nk9bhPJKkM7AJ1dBPdk4M6F3Gy50Sb\n0FHtcMDpUG7wrvbDIh8RWmpZrWTlJuJKppc3AbrK0QKBgQCMtGYuSCWHG5ihq2ZJ\nY/yxC058Q1pcwj+QmUIGBoTMECxRVWtYBRLRJhANM49clP5M77u0/hdmjTeHGwtg\nEEHUILFImz7i2KCaDOVWtR26GPxLrR5iIQQxt90cT+RoCjXfrqtSfXcj15Vl4dPl\nvkdC5+nXutNQ/LQdDSq4pnfkQw==\n-----END PRIVATE KEY-----\n",
+    "client_email": "firebase-adminsdk-91pj9@medical-cooler-box.iam.gserviceaccount.com",
+    "client_id": "107147924590824095212",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-91pj9%40medical-cooler-box.iam.gserviceaccount.com"
+  },
+  "databaseUrl": "https://medical-cooler-box-default-rtdb.firebaseio.com"
+}
