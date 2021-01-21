@@ -1,5 +1,11 @@
 'use strict';
 const { exec } = require("child_process");
+const {readFileSync} = require('fs');
+const jwt = require('jsonwebtoken');
+const mqtt = require('mqtt');
+
+const {PubSub} = require('@google-cloud/pubsub');
+const iot = require('@google-cloud/iot');
 
 const functions = require('firebase-functions');
 const admin = require("firebase-admin");
@@ -27,7 +33,7 @@ const getDeviceLogs = async (deviceId, start, end) => {
 
     let deviceLogs = db.ref(`avr-iot/logs/${deviceId}`);
     return await deviceLogs.orderByKey().startAt(start.toString()).endAt(end.toString()).once("value");
-    // return await deviceLogs.once("value");
+    
 };
 
 /**
@@ -99,18 +105,47 @@ const getTimeRange = (start, end) => {
                     }
  */
 exports.dashboard = functions.https.onRequest(async (req, res) => {
-    // exec('gcloud iot devices configs update --region=us-central1 --registry=AVR-IOT --device=d01233D8B64AD6150FE --config-data="testing"', (error, stdout, stderr) => {
-    exec("bash test.sh", (error, stdout, stderr) => {
-        if (error) {
-            console.log(`error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.log(`stderr: ${stderr}`);
-            return;
-        }
-        console.log(`stdout: ${stdout}`);
-    });
+
+
+//---------------------------------------------------------------------------------------------------------*/
+ const cloudRegion = 'us-central1';
+ const deviceId = 'd01233D8B64AD6150FE';
+ const projectId = 'medical-cooler-box';
+ const registryId = 'AVR-IOT';
+ const data = 'test-data';
+ const version = 0;
+
+const iotClient = new iot.v1.DeviceManagerClient({
+  // optional auth parameters.
+});
+
+async function modifyCloudToDeviceConfig() {
+  // Construct request
+  const formattedName = iotClient.devicePath(
+    projectId,
+    cloudRegion,
+    registryId,
+    deviceId
+  );
+
+  const binaryData = Buffer.from(data).toString('base64');
+  const request = {
+    name: formattedName,
+    versionToUpdate: version,
+    binaryData: binaryData,
+  };
+
+  const [response] = await iotClient.modifyCloudToDeviceConfig(request);
+  console.log('Success:', response);
+}
+
+modifyCloudToDeviceConfig();
+
+
+
+
+//--------------------------------------------------------------------------------------------------
+
     if (req.method === "OPTIONS") {
         return cors(req, res, () => {
             res.status(200).send({});

@@ -92,7 +92,8 @@ static void sendToCloud(void)
         light = SENSORS_getLightValue();
         
         sprintf(json,"{\"Loc\":\"%s\",\"Temp\":%2d.%2d}",location,rawTemperature/100,rawTemperature%100 );
-                
+        
+        printf("\n Publish topic %s\n", publishMqttTopic);
         printf(json);
         printf("\n");
         
@@ -139,7 +140,7 @@ static void receivedFromCloud(uint8_t *topic, uint8_t *payload)
     }
     debug_printIoTAppMsg("topic: %s", topic);
     debug_printIoTAppMsg("payload: %s", payload);
-    //printf("payload: %s", payload);
+    printf("\npayload: %s\n", payload);
 }
 
 void application_init(void)
