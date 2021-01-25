@@ -11,7 +11,7 @@ int GPS_Read() {
     int gps_fix;
     
     //Read incoming GPS data and filter GPGGA readings---------------------------------------
-    for(int i=0; i<10000; i++){
+    for(int i=0; i<1000; i++){
             if (USART1_Read() == '$'){
                 if (USART1_Read() == 'G'){
                     if (USART1_Read() == 'P'){
@@ -36,7 +36,6 @@ int GPS_Read() {
     }
     
     //decode GPS reading---------------------------------------------------------------
-    //https://shekharbiradar.wordpress.com/decoding-gps-gpgga/
     
     if (gps_rx_read[21] == 'N') location[0] = '+';
     else location[0] = '-';

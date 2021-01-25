@@ -23,15 +23,19 @@
 
 #include "mcc_generated_files/application_manager.h"
 
+
 int main(void)
 {
    application_init();
+   
+   
 
    while (1)
    { 
       runScheduler();
-     
+      tempController();
+      
    }
-   
+  
    return 0;
 }

@@ -26,7 +26,8 @@ build/GOOGLE_IOT/production/mcc_generated_files/sensors_handling.o.d \
  /opt/microchip/xc8/v2.31/avr/avr/include/stdio.h \
  /opt/microchip/xc8/v2.31/avr/lib/gcc/avr/5.4.0/include/stdarg.h \
  mcc_generated_files/drivers/../include/twi0_master.h \
- mcc_generated_files/drivers/../include/../utils/compiler.h
+ mcc_generated_files/drivers/../include/../utils/compiler.h \
+ mcc_generated_files/delay.h
 
 /opt/microchip/xc8/v2.31/avr/lib/gcc/avr/5.4.0/include/stdint.h:
 
@@ -79,3 +80,5 @@ mcc_generated_files/drivers/i2c_simple_master.h:
 mcc_generated_files/drivers/../include/twi0_master.h:
 
 mcc_generated_files/drivers/../include/../utils/compiler.h:
+
+mcc_generated_files/delay.h:

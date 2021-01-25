@@ -10,6 +10,7 @@ build/GOOGLE_IOT/production/mcc_generated_files/application_manager.o.d \
  /opt/microchip/xc8/v2.31/avr/avr/include/stdlib.h \
  /opt/microchip/xc8/v2.31/avr/avr/include/stdio.h \
  /opt/microchip/xc8/v2.31/avr/lib/gcc/avr/5.4.0/include/stdarg.h \
+ /opt/microchip/xc8/v2.31/avr/avr/include/math.h \
  mcc_generated_files/utils/atomic.h \
  /opt/microchip/xc8/v2.31/avr/avr/include/avr/wdt.h \
  /opt/microchip/xc8/v2.31/avr/avr/include/avr/io.h \
@@ -91,7 +92,9 @@ build/GOOGLE_IOT/production/mcc_generated_files/application_manager.o.d \
  mcc_generated_files/credentials_storage/../winc/m2m/m2m_types.h \
  mcc_generated_files/led.h mcc_generated_files/debug_print.h \
  mcc_generated_files/time_service.h \
- mcc_generated_files/winc/m2m/m2m_types.h mcc_generated_files/../GPS.h \
+ mcc_generated_files/winc/m2m/m2m_types.h \
+ /opt/microchip/xc8/v2.31/avr/avr/include/avr/eeprom.h \
+ mcc_generated_files/../GPS.h \
  mcc_generated_files/../mcc_generated_files/mcc.h \
  mcc_generated_files/cli/cli.h \
  mcc_generated_files/cli/../drivers/timeout.h
@@ -113,6 +116,8 @@ build/GOOGLE_IOT/production/mcc_generated_files/application_manager.o.d \
 /opt/microchip/xc8/v2.31/avr/avr/include/stdio.h:
 
 /opt/microchip/xc8/v2.31/avr/lib/gcc/avr/5.4.0/include/stdarg.h:
+
+/opt/microchip/xc8/v2.31/avr/avr/include/math.h:
 
 mcc_generated_files/utils/atomic.h:
 
@@ -289,6 +294,8 @@ mcc_generated_files/debug_print.h:
 mcc_generated_files/time_service.h:
 
 mcc_generated_files/winc/m2m/m2m_types.h:
+
+/opt/microchip/xc8/v2.31/avr/avr/include/avr/eeprom.h:
 
 mcc_generated_files/../GPS.h:
 

@@ -29,10 +29,13 @@
 #include "sensors_handling.h"
 #include "include/adc0.h"
 #include "drivers/i2c_simple_master.h"
+#include "delay.h"
 
 #define MCP9809_ADDR				0x18 
 #define MCP9808_REG_TA				0x05
 #define LIGHT_SENSOR_ADC_CHANNEL	5
+
+int32_t curr_temp = 3000;
 
 uint16_t SENSORS_getLightValue(void)
 {
@@ -42,14 +45,20 @@ uint16_t SENSORS_getLightValue(void)
 int16_t SENSORS_getTempValue (void)
 {
     int32_t temperature;
+
+    for (uint8_t i=0; i<20; i++){
     
-    temperature = i2c_read2ByteRegister(MCP9809_ADDR, MCP9808_REG_TA);
+        temperature = i2c_read2ByteRegister(MCP9809_ADDR, MCP9808_REG_TA);
     
-    temperature = temperature << 19;
-    temperature = temperature >> 19;
+        temperature = temperature << 19;
+        temperature = temperature >> 19;
     
-    temperature *= 100;
-    temperature /= 16;
+        temperature *= 100;
+        temperature /= 16;
     
-    return temperature;
+        curr_temp = (curr_temp*0.95) + (temperature*0.05);
+    
+        DELAY_milliseconds(10);
+    }
+    return curr_temp;
 }

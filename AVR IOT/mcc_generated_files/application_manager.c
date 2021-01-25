@@ -28,8 +28,10 @@ SOFTWARE.
 #include <string.h>
 #include <time.h>
 #include <stdio.h>
+#include <math.h>
 #include "utils/atomic.h"
 #include <avr/wdt.h>
+#include <avr/io.h>
 #include "include/pin_manager.h"
 #include "application_manager.h"
 #include "mcc.h"
@@ -46,6 +48,8 @@ SOFTWARE.
 #include "led.h"
 #include "debug_print.h"
 #include "time_service.h"
+#include "avr/eeprom.h"
+#include "delay.h"
 #include "../GPS.h"
 #if CFG_ENABLE_CLI
 #include "cli/cli.h"
@@ -73,6 +77,8 @@ static void updateDeviceShadow(void);
 static void subscribeToCloud(void);
 static void receivedFromCloud(uint8_t *topic, uint8_t *payload);
 
+int setTemp = 50;
+
 // This will get called every 1 second only while we have a valid Cloud connection
 static void sendToCloud(void)
 {
@@ -82,7 +88,7 @@ static void sendToCloud(void)
     int light = 0;
     int len = 0;
     
-    if (!GPS_Read()) strcpy(location,"");
+    //if (!GPS_Read()) strcpy(location,"");
   
     sprintf(publishMqttTopic, "/devices/d%s/events", attDeviceID);
     // This part runs every CFG_SEND_INTERVAL seconds
@@ -91,14 +97,14 @@ static void sendToCloud(void)
         rawTemperature = SENSORS_getTempValue();
         light = SENSORS_getLightValue();
         
-        sprintf(json,"{\"Loc\":\"%s\",\"Temp\":%2d.%2d}",location,rawTemperature/100,rawTemperature%100 );
+        sprintf(json,"{\"Loc\":\"%s\",\"Temp\":%d.%d}",location,rawTemperature/100,rawTemperature%100 );
         
         printf("\n Publish topic %s\n", publishMqttTopic);
         printf(json);
         printf("\n");
         
     }
-    if (strlen(json) >0) 
+    if (!strlen(json) >0) 
     {
         CLOUD_publishData((uint8_t*)publishMqttTopic ,(uint8_t*)json, strlen(json));        
         if (holdCount)
@@ -140,8 +146,12 @@ static void receivedFromCloud(uint8_t *topic, uint8_t *payload)
     }
     debug_printIoTAppMsg("topic: %s", topic);
     debug_printIoTAppMsg("payload: %s", payload);
-    printf("\npayload: %s\n", payload);
+    printf("payload: %s", payload);
+    eeprom_write_word (0x1400, payload);        //write received temperature value to EEProm
+    setTemp = atoi(payload);
+
 }
+
 
 void application_init(void)
 {
@@ -268,7 +278,8 @@ void application_init(void)
     
     LED_test();
     subscribeToCloud();
-    
+    setTemp = atoi(eeprom_read_word(0x1400)); //get the set temperature value from the eeprom
+    PORTD.DIR |= PIN7_bm;                     //define the pin 7 as an output;
 }
 
 static void subscribeToCloud(void)
@@ -373,4 +384,17 @@ static void  wifiConnectionStateChanged(uint8_t status)
     {
         CLOUD_reset();
     } 
+}
+
+void tempController(){
+    int curr_temp = SENSORS_getTempValue()/100;
+    
+    if (curr_temp > setTemp){
+        PORTD.OUT |= PIN7_bm;
+    }
+    
+    else {
+        PORTD.OUT &= ~PIN7_bm;
+    }
+    DELAY_milliseconds(10);
 }
