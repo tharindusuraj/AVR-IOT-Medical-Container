@@ -1,11 +1,6 @@
 'use strict';
-const { exec } = require("child_process");
-const {readFileSync} = require('fs');
-const jwt = require('jsonwebtoken');
-const mqtt = require('mqtt');
 
-const {PubSub} = require('@google-cloud/pubsub');
-const iot = require('@google-cloud/iot');
+const { exec } = require("child_process");
 
 const functions = require('firebase-functions');
 const admin = require("firebase-admin");
@@ -13,6 +8,14 @@ const admin = require("firebase-admin");
 var config = require("./config.json");
 
 const pageLengthInMonths = 1;
+
+// MQTT constants
+const iot = require('@google-cloud/iot');
+const cloudRegion = 'us-central1';
+const projectId = 'medical-cooler-box';
+const registryId = 'AVR-IOT';
+const version = 0;
+// ------------------------------------------------------------
 
 admin.initializeApp({
     credential: admin.credential.cert(config.serviceAccount),
@@ -31,9 +34,8 @@ let db = admin.database();
 const getDeviceLogs = async (deviceId, start, end) => {
 
 
-    let deviceLogs = db.ref(`avr-iot/logs/${deviceId}`);
+    let deviceLogs = db.ref(`avr-iot/datalogs/${deviceId}`);
     return await deviceLogs.orderByKey().startAt(start.toString()).endAt(end.toString()).once("value");
-    
 };
 
 /**
@@ -82,69 +84,61 @@ const getTimeRange = (start, end) => {
 };
 
 /**
+ *  send updated device temperature
+ */
+const sendTemperatureUpdated = async (reqest) => {
+    const deviceId = 'd'.concat(reqest.body.deviceId);
+    const data = reqest.body.setTemp;
+
+    const iotClient = new iot.v1.DeviceManagerClient({
+    });
+
+    async function modifyCloudToDeviceConfig() {
+        // Construct request
+        const formattedName = iotClient.devicePath(
+            projectId,
+            cloudRegion,
+            registryId,
+            deviceId
+        );
+
+        const binaryData = Buffer.from(data).toString('base64');
+        const request = {
+            name: formattedName,
+            versionToUpdate: version,
+            binaryData: binaryData,
+        };
+
+        const [response] = await iotClient.modifyCloudToDeviceConfig(request);
+        console.log('Success:', response);
+    }
+
+    modifyCloudToDeviceConfig();
+};
+/**
  *    Title       : Get Dashboard API
  *    Url         : {Host}/dashboard
  *    Description : Fetches devices logs for the dashboard. Response format is something like
  *                  {
                         "devices": {
                             "testTk": {
-                                "client": "Sudaraka",
-                                "deviceExpiry": 1617898965000
+                                "client": "testClientName",
+                                "setTemp": "23"
                             }
                         },
                         "info": {
-                            "deviceExpiry": 1617898965000,
                             "deviceId": "testTk",
-                            "client": "Sudaraka",
+                            "client": "testClientName",
+                            "setTemp" :"23",
                             "timeRange": {
                                 "start": 1607445701,
                                 "end": 1610124101
                             },
                             "logs": null
                         }
-                    }
+
  */
 exports.dashboard = functions.https.onRequest(async (req, res) => {
-
-
-//---------------------------------------------------------------------------------------------------------*/
- const cloudRegion = 'us-central1';
- const deviceId = 'd01233D8B64AD6150FE';
- const projectId = 'medical-cooler-box';
- const registryId = 'AVR-IOT';
- const data = 'test-data';
- const version = 0;
-
-const iotClient = new iot.v1.DeviceManagerClient({
-  // optional auth parameters.
-});
-
-async function modifyCloudToDeviceConfig() {
-  // Construct request
-  const formattedName = iotClient.devicePath(
-    projectId,
-    cloudRegion,
-    registryId,
-    deviceId
-  );
-
-  const binaryData = Buffer.from(data).toString('base64');
-  const request = {
-    name: formattedName,
-    versionToUpdate: version,
-    binaryData: binaryData,
-  };
-
-  const [response] = await iotClient.modifyCloudToDeviceConfig(request);
-  console.log('Success:', response);
-}
-
-modifyCloudToDeviceConfig();
-
-
-
-
-//--------------------------------------------------------------------------------------------------
 
     if (req.method === "OPTIONS") {
         return cors(req, res, () => {
@@ -178,8 +172,8 @@ modifyCloudToDeviceConfig();
             let resp = {
                 devices: devices,
                 info: {
-                    deviceExpiry: devices[deviceId] && devices[deviceId].deviceExpiry,
                     deviceId: deviceId,
+                    setTemp: devices[deviceId] && devices[deviceId].setTemp,
                     client: devices[deviceId] && devices[deviceId].client,
                     timeRange: timeRange,
                     logs: logs
@@ -201,7 +195,7 @@ modifyCloudToDeviceConfig();
  *    Url         : {Host}/toggleDeviceStatus
  *    Description : If you make the call to the  api with a new device id -> it will create a new device record
  *                  If you make the call to the api with an existing device id -> it will update the  device record.
- *                  Main purposes are creating new device records and updating expiry time.    
+ *                  Main purposes are creating new device records and updating set Temperature.
  */
 exports.toggleDeviceStatus = functions.https.onRequest((req, res) => {
     let token = req.headers['x-auth'];
@@ -210,6 +204,9 @@ exports.toggleDeviceStatus = functions.https.onRequest((req, res) => {
             res.status(200).send({});
         });
     }
+    //Sending temperature updates to the device
+    sendTemperatureUpdated(req);
+
     verifyAuthToken(token).then(result => {
         if (req.method !== "POST" && req.method !== "OPTIONS") {
             return cors(req, res, () => {
@@ -220,7 +217,7 @@ exports.toggleDeviceStatus = functions.https.onRequest((req, res) => {
         let deviceId = req.body.deviceId;
         let client = req.body.client;
         let setTemp = req.body.setTemp;
-        // let deviceExpiry = new Date(req.body.deviceExpiry);
+
         let deviceRecord = {}
 
         if (!deviceId) {
@@ -238,16 +235,6 @@ exports.toggleDeviceStatus = functions.https.onRequest((req, res) => {
                 });
             }
             refS.off();
-
-            /*if (deviceExpiry.getTime() > 0) {
-                if (deviceExpiry.getTime() > new Date().getTime()) {
-                    deviceRecord.deviceExpiry = deviceExpiry.getTime();
-                } else {
-                    return cors(req, res, () => {
-                        res.status(400).send({ error: "Expiry should be in the future" });
-                    });
-                }
-            }*/
 
             if (client) {
                 deviceRecord.client = client;
@@ -268,51 +255,13 @@ exports.toggleDeviceStatus = functions.https.onRequest((req, res) => {
                 res.status(400).send({ message: "Nothing Updated" });
             });
         });
+
         return;
+
+
     }).catch(error => {
         return cors(req, res, () => {
             res.status(403).send({ error: error.message });
-        });
-    });
-});
-
-/**
- *    Title       : GPS Logs API
- *    Url         : {Host}/gpsLogs
- *    Description : This api is used by the devices to push gps logs to the
- *                  database.
- */
-exports.gpsLogs = functions.https.onRequest((req, res) => {
-    if (req.method !== "POST" && req.method !== "OPTIONS") {
-        return cors(req, res, () => {
-            res.status(400).send({ error: 'Please send a POST request' });
-        });
-    }
-
-    const deviceId = req.body.deviceId;
-    const data = req.body.data;
-
-    // block if deviceId is empty or not licensed
-    if (!deviceId) {
-        return cors(req, res, () => {
-            res.status(400).send({ error: 'Please send a valid device ID' });
-        });
-    }
-
-    let ref = db.ref("avr_iot/datalogs");
-    ref.child(`${deviceId}/deviceExpiry`).once("value", snapshot => {
-        if (snapshot.val() < new Date().getTime()) {
-            // don't allow adding logs if the device is not licensed
-            return cors(req, res, () => {
-                res.status(401).send({ error: 'Device is unlicensed!' });
-            });
-        }
-
-        let logsRef = db.ref('logs');
-        logsRef.child(deviceId).update(data);
-        logsRef.off();
-        return cors(req, res, () => {
-            res.status(201).send({ message: 'Logs Added' });
         });
     });
 });
@@ -357,42 +306,3 @@ exports.deleteDevice = functions.https.onRequest((req, res) => {
         });
     });
 });
-
-/**
- *    Title       : Delete Availability API
- *    Url         : {Host}/deviceAvailability
- *    Description : Check if a device is expired or not
- */
-exports.deviceAvailability = functions.https.onRequest((req, res) => {
-    if (req.method === "OPTIONS") {
-        return cors(req, res, () => {
-            res.status(200).send({});
-        });
-    }
-
-    if (req.method !== "GET" && req.method !== "OPTIONS") {
-        return cors(req, res, () => {
-            res.status(400).send({ error: 'Please send a GET request' })
-        });
-    }
-
-    if (!req.query.deviceId || req.query.deviceId === "") {
-        return cors(req, res, () => {
-            res.status(400).send({ error: 'Please send a valid device id' })
-        });
-    }
-
-    let deviceId = req.query.deviceId;
-    let ref = db.ref("avr-iot/devices");
-
-    return ref.child(deviceId).once("value", snapshot => {
-        let device = snapshot.val();
-        let resp = {
-            expiry: device && device["deviceExpiry"] / 1000
-        }
-        return cors(req, res, () => {
-            res.status(200).send(resp);
-        });
-    });
-});
-
