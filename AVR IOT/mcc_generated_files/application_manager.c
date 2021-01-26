@@ -88,7 +88,7 @@ static void sendToCloud(void)
     int light = 0;
     int len = 0;
     
-    //if (!GPS_Read()) strcpy(location,"");
+    if (!GPS_Read()) strcpy(location,"");
   
     sprintf(publishMqttTopic, "/devices/d%s/events", attDeviceID);
     // This part runs every CFG_SEND_INTERVAL seconds
@@ -104,7 +104,7 @@ static void sendToCloud(void)
         printf("\n");
         
     }
-    if (!strlen(json) >0) 
+    if (strlen(json) >0) 
     {
         CLOUD_publishData((uint8_t*)publishMqttTopic ,(uint8_t*)json, strlen(json));        
         if (holdCount)
